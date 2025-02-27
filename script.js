@@ -38,7 +38,6 @@ async function updateStats() {
   const collRef = collection(db, "shortLinks");
   const snapshot = await getDocs(collRef);
   const total = snapshot.size;
-  // Update total count
   animateValue(
     document.getElementById("totalCount"),
     parseInt(document.getElementById("totalCount").innerText),
@@ -63,7 +62,7 @@ async function updateStats() {
     ) {
       countToday++;
     }
-    const monthKey = d.getMonth(); // 0-11
+    const monthKey = d.getMonth();
     monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
     const dayKey = d.toISOString().slice(0, 10);
     dayCounts[dayKey] = (dayCounts[dayKey] || 0) + 1;
@@ -221,10 +220,12 @@ function closeModal() {
   document.querySelector(".main-content").classList.remove("blurred");
 }
 
+// Fungsi checkRedirect telah dimodifikasi untuk mendukung path rewriting.
 (async function checkRedirect() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const shortId = urlParams.get("s");
-  if (shortId) {
+  // Pertama cek pathname, jika bukan "/" maka ambil kode pendek dari path.
+  const path = window.location.pathname;
+  if (path && path !== "/") {
+    const shortId = path.slice(1); // hapus "/" di awal
     const docRef = doc(db, "shortLinks", shortId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -232,6 +233,20 @@ function closeModal() {
     } else {
       document.body.innerHTML =
         "<h2 style='color: #fff; text-align: center; margin-top: 50px;'>Link tidak ditemukan!</h2>";
+    }
+  } else {
+    // Jika pathname hanya "/", cek query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const shortId = urlParams.get("s");
+    if (shortId) {
+      const docRef = doc(db, "shortLinks", shortId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        window.location.href = docSnap.data().longUrl;
+      } else {
+        document.body.innerHTML =
+          "<h2 style='color: #fff; text-align: center; margin-top: 50px;'>Link tidak ditemukan!</h2>";
+      }
     }
   }
 })();
