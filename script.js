@@ -145,7 +145,7 @@
         createdAt: new Date().toISOString()
       });
       // Perbaiki: gunakan path untuk shortLink
-      const shortLink = `${window.location.origin}/${shortId}`;
+      const shortLink = `${window.location.origin}?s=${shortId}`;
       document.getElementById("modalLink").innerHTML = `<a href="${shortLink}" target="_blank">${shortLink}</a>`;
       document.getElementById("qrcode").innerHTML = "";
       new QRCode(document.getElementById("qrcode"), {
